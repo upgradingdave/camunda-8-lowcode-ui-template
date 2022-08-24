@@ -58,7 +58,8 @@ public class UserTaskWorker {
       String jobKey = Long.toString(job.getKey());
       // task.setId(jobKey);
 
-      // But good news, job.getElementInstanceKey() is the "taskId" that is expected by task list graphql
+      // But good news, job.getElementInstanceKey() is the "taskId" that is expected by task list
+      // graphql
       String taskId = Long.toString(job.getElementInstanceKey());
       task.setId(taskId);
 
