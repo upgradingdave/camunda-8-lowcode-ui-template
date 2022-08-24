@@ -9,6 +9,7 @@ import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import org.example.camunda.process.solution.facade.dto.Form;
 import org.example.camunda.process.solution.facade.dto.Task;
 import org.example.camunda.process.solution.service.FormService;
 import org.example.camunda.process.solution.service.TaskListService;
@@ -73,8 +74,14 @@ public class UserTaskWorker {
           taskListService.getTaskNameFromBpmn(bpmnProcessId + ".bpmn", taskActivityId);
       task.setName(taskName);
 
+      // This will read the form schema out of a bpmn file.
+      /*
       String formId = formService.parseFormIdFromKey(formKey);
       String schema = formService.getFormSchemaFromBpmn(bpmnProcessId + ".bpmn", formId);
+      */
+      // But for the low code, we want to read from filesystem like this:
+      Form form = formService.findByName(taskActivityId);
+      String schema = form.getSchema().toString();
       task.setFormSchema(schema);
 
       String assignee = headers.get("io.camunda.zeebe:assignee");
