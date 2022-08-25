@@ -24,7 +24,7 @@ Vue.component('main-page',{
 			</div>
 			<main class="mainContent col ps-md-2 pt-2">
 				<h2>{{title}}</h2>
-				<mytasks v-if="$store.state=='mytasks'"></mytasks>
+				<mytasks v-if="$store.state=='mytasks'" ref="myTasksRef"></mytasks>
 				<unassignedtasks v-if="$store.state=='unassignedtasks'"></unassignedtasks>
 				<archivedtasks v-if="$store.state=='archivedtasks'"></archivedtasks>
 				<new-instance v-if="$store.state.startsWith('proc')"></new-instance>
@@ -40,7 +40,32 @@ Vue.component('main-page',{
 			}
 			return this.$store.process.name;
 		}
-	}
+	},
+  created: function() {
+  },
+  mounted: function() {
+    this.wsConnect();
+  },
+  methods: {
+    wsConnect() {
+      console.log("attempting to connect to websockets");
+      const sockUrl = `ws://${location.host}/ws`;
+      let stompClient = new StompJs.Client({
+        brokerURL: sockUrl
+      });
+
+      let userId = this.$store.user.name;
+      let addTask = this.$refs.myTasksRef.addTask;
+      stompClient.onConnect = function(frame){
+        stompClient.subscribe("/topic/" + userId + "/userTask", function(message){
+          let task = JSON.parse(message.body);
+          addTask(task);
+        });
+      };
+
+      stompClient.activate();
+    }
+  }
 });
 Vue.component('side-bar',{
   template: `<div id="sidebar" class="border-end">
@@ -87,9 +112,9 @@ Vue.component('side-bar',{
   },
   created: function () {
     axios.get('/process/definition/latest', this.$store.axiosHeaders).then(response => {
-		this.processes = response.data; 
+		this.processes = response.data;
 	}).catch(error => {
-		alert(error.message); 
+		alert(error.message);
 	})
   }
 });

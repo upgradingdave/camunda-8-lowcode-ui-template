@@ -1,18 +1,48 @@
 
 Vue.component('mytasks',{
-  template: `<div><div class="taskList"><task v-for="task in $store.tasks" :task="task"></task></div>
+  template: `<div><div class="taskList"><task v-for="task in $store.tasks" :task="task" ref="taskRef"></task></div>
  	 <div class="taskListFormContainer"><task-form></task-form></div></div>`,
+  methods: {
+    addTask(task) {
+      console.log("Calling mytasks.addTask");
+      let newTasks = [];
+      newTasks.push(task);
+      let refs = this.$refs.taskRef;
+      if(refs) {
+        for (let i = 0; i < refs.length; i++) {
+          newTasks.push(refs[i].task);
+        }
+      }
+      this.$store.tasks = newTasks;
+      this.$store.selectedTask = task;
+    }
+  },
   data() {
     return {
-      tasks: []
-	}
+      tasks: [],
+      selectedTask: null
+    }
   },
   created: function () {
     axios.get('/tasks/myOpenedTasks/'+this.$store.user.name, this.$store.axiosHeaders).then(response => {
-		this.$store.tasks = response.data; 
+		this.$store.tasks = response.data;
 	}).catch(error => {
-		alert(error.message); 
+		alert(error.message);
 	})
+  },
+  updated() {
+    console.log("mytasks.updated ");
+    let refs = this.$refs.taskRef;
+    if(refs) {
+      for (let i = 0; i < refs.length; i++) {
+        //console.log(refs[i].task);
+        let selectedTask = this.$store.selectedTask;
+        if (selectedTask && refs[i].task.id === selectedTask.id) {
+          console.log("FOUND TASK");
+          refs[i].openTask();
+        }
+      }
+    }
   }
 });
 Vue.component('unassignedtasks',{
@@ -25,9 +55,9 @@ Vue.component('unassignedtasks',{
   },
   created: function () {
     axios.get('/tasks/unassigned').then(response => {
-		this.$store.tasks = response.data; 
+		this.$store.tasks = response.data;
 	}).catch(error => {
-		alert(error.message); 
+		alert(error.message);
 	})
   }
 });
@@ -42,9 +72,9 @@ Vue.component('archivedtasks',{
   },
   created: function () {
     axios.get('/tasks/myArchivedTasks/'+this.$store.user.name).then(response => {
-		this.$store.tasks = response.data; 
+		this.$store.tasks = response.data;
 	}).catch(error => {
-		alert(error.message); 
+		alert(error.message);
 	})
   }
 });
@@ -58,7 +88,7 @@ Vue.component('task',{
   props:["task"],
   methods: {
 	openTask() {
-		this.$store.task=this.task;
+    this.$store.task=this.task;
 	}
   },
   computed: {
