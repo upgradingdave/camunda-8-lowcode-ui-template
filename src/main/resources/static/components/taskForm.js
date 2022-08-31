@@ -27,7 +27,7 @@ Vue.component('task-form',{
 	  axios.get('/tasks/'+this.$store.task.id+'/unclaim/', this.$store.axiosHeaders).then(response => {
         this.$store.task.assignee=null;
 	  }).catch(error => {
-	    alert(error.message); 
+	    alert(error.message);
 	  })
 	  this.form.setProperty('readOnly', true);
 	},
@@ -39,37 +39,44 @@ Vue.component('task-form',{
 	      Array.prototype.push.apply(errors, this.form._state.errors[field]);
 	    }
 	  }
-	  if (errors.length==0) {
-	    axios.post('/tasks/'+this.$store.task.id, this.form._getState().data, this.$store.axiosHeaders).then(response => {
-          let i =0;
-          for(;i<this.$store.tasks.length;i++) {
-            if (this.$store.tasks[i].id==this.$store.task.id) {
-              this.$store.tasks.splice(i,1);
-              break;
-            }
-	      }
-          if(i<this.$store.tasks.length) {
-            this.$store.task = this.$store.tasks[i];
-          } else {
-            this.$store.task = {
-              id: null,
-              name: null,
-              creationTime: "1970-01-01"
-            };
-            this.form = null;
-          }
-        }).catch(error => {
-          alert(error.message);
-        })
+
+	  if (errors.length===0) {
+      if (this.$store.task.jobKey) {
+        // complete using ZeebeClient
+        axios.post('/tasks/withJobKey/' + this.$store.task.jobKey, this.form._getState().data, this.$store.axiosHeaders);
+      } else {
+        // complete using Task List graphql
+        axios.post('/tasks/' + this.$store.task.id, this.form._getState().data, this.$store.axiosHeaders);
       }
-    },
+
+      // Remove task from list
+      // TODO: this should be added as a callback to the two rest api calls above
+      let i = 0;
+      for (; i < this.$store.tasks.length; i++) {
+        if ((this.$store.tasks[i].id === this.$store.task.id) || (this.$store.task.jobKey && (this.$store.tasks[1].jobKey === this.$store.task.jobKey))) {
+          this.$store.tasks.splice(i, 1);
+          break;
+        }
+      }
+      if (i < this.$store.tasks.length) {
+        this.$store.task = this.$store.tasks[i];
+      } else {
+        this.$store.task = {
+          id: null,
+          name: null,
+          creationTime: "1970-01-01"
+        };
+        this.form = null;
+      }
+    }
+  },
     mountForm() {
       if (!this.$store.task.id) {
         this.form = null;
       } else {
         let url = '/forms/'+this.$store.task.processDefinitionId+'/'+this.$store.task.formKey;
         axios.get(url, this.$store.axiosHeaders).then(response => {
-          let schema = response.data; 
+          let schema = response.data;
           if (this.form==null) {
             this.form = new FormViewer.Form({
               container: document.querySelector('#task-form')
@@ -80,7 +87,7 @@ Vue.component('task-form',{
             this.form.setProperty('readOnly', true);
           }
         }).catch(error => {
-          alert(error.message); 
+          alert(error.message);
         })
       }
     }
@@ -93,4 +100,3 @@ Vue.component('task-form',{
   }
 });
 
-	
