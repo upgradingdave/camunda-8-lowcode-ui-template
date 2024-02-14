@@ -45,6 +45,9 @@ public class OperateService {
   @Value("${zeebe.client.cloud.clusterId:notProvided}")
   private String clusterId;
 
+  @Value("${identity.scope:notProvided}")
+  private String scope;
+
   @Value("${zeebe.client.cloud.region:notProvided}")
   private String region;
 
@@ -81,11 +84,12 @@ public class OperateService {
       } else {
         JwtConfig jwtConfig = new JwtConfig();
         jwtConfig.addProduct(
-            Product.OPERATE, new JwtCredential(identityClientId, identityClientSecret, null, null));
+            Product.OPERATE,
+            new JwtCredential(identityClientId, identityClientSecret, null, keycloakUrl));
         auth =
             SelfManagedAuthentication.builder()
                 .jwtConfig(jwtConfig)
-                .keycloakUrl(keycloakUrl)
+                // .keycloakUrl(keycloakUrl)
                 .build();
       }
       client =

@@ -48,7 +48,7 @@ public class EmailWorker {
     User consultant = userService.getUserByUsername(to);
     variables.put("consultant", consultant);
 
-    mailService.sendMail(to, cc, bcc, subject, template, locale, variables);
+    // mailService.sendMail(to, cc, bcc, subject, template, locale, variables);
 
     return new ProcessVariables();
   }

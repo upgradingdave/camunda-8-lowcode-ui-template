@@ -2,15 +2,25 @@
 # https://github.com/camunda-community-hub/spring-zeebe#additional-configuration-options
 
 zeebe.client:
-  broker.gatewayAddress: 127.0.0.1:26500
-  security.plaintext: true
+  broker.gatewayAddress:
+zeebe:
+  client:
+    broker:
+      gatewayAddress: dave03.gke.c8sm.com:443
+    security:
+      plaintext: false
+    cloud:
+      client-id: "ba4089db-c72a-4049-8fde-955179365ccf"
+      client-secret: "7tB8Q~DXNton_.lTJkIs5AtXGgZnzsKUkILRoc4y"
+      auth-url: "https://login.microsoftonline.com/cbd46654-4f74-4332-a490-69f0f071ba9f/oauth2/v2.0/token"
+      scope: "ba4089db-c72a-4049-8fde-955179365ccf/.default"
 
 # go to http://localhost:8084/applications/ and create application of type M2M with read/write access to Operate & Tasklist
-identity.clientId: pouet
-identity.clientSecret: CSf4Jqwcmw6HsEocpslOvVPjZ4t8DUoP
+identity.clientId: "ba4089db-c72a-4049-8fde-955179365ccf"
+identity.clientSecret: "7tB8Q~DXNton_.lTJkIs5AtXGgZnzsKUkILRoc4y"
 keycloakUrl: http://localhost:18080
-tasklistUrl: http://localhost:8082/
-operateUrl: http://localhost:8081/
+tasklistUrl: "https://dave03.gke.c8sm.com/tasklist"
+operateUrl: "https://dave03.gke.c8sm.com/operate"
 
 # this is to allow react application launched separately to access the WS
 websocket:
@@ -33,7 +43,7 @@ spring:
         # scope: openid, profile
         # redirect-uri: http://localhost:8080/login/oauth2/code/customTaskList
       # provider.customTaskList.issuer-uri: http://localhost:18080/auth/realms/camunda-platform
-   
+
 server:
   port: 8080
   error:
